@@ -20,6 +20,10 @@ file_path = os.path.join(script_dir, file_name)
 
 benchmark_model = np.loadtxt(file_path, dtype=complex).view(complex)
 
+offset = np.pi/2
+#offset -= 5/20
+#offset=0
+
 utility_function = 'CRRA'
 gamma = 2
 size = 4
@@ -52,7 +56,7 @@ s2_vector = Statevector(benchmark_model)
 s3p_list = []
 s3p_list.append(Generate_D_Minus_E_problem(utility_function=utility_function, gamma=gamma, size=size))
 s3p_list.append(Generate_D_Minus_E_problem_SV(utility_function=utility_function, gamma=gamma, size=size, gamma_G=gamma_G_1, pi_G = pi_G_1))
-s3p_list.append(Generate_D_Minus_E_problem_SV(utility_function=utility_function, gamma=gamma, size=size, gamma_G=gamma_G_2, pi_G=pi_G_2))
+s3p_list.append(Generate_D_Minus_E_problem_SV(utility_function=utility_function, gamma=gamma, size=size, gamma_G=gamma_G_2, pi_G = pi_G_2))
 s3p_list.append(Generate_D_Minus_E_problem_RD(utility_function=utility_function, gamma=gamma, size=size))
 
 cu_list = []
@@ -100,7 +104,7 @@ for s3_problem in s3p_list:
     quantum_upper_bound_operators = []
     quantum_lower_bound_operators = []
 
-    deltas = list(np.linspace(0,np.pi,10))
+    deltas = list(np.linspace(0, offset*np.pi,10))
     quantum_utilities = {key : [] for key in deltas}
     for p in probs:
         # Classical
@@ -110,8 +114,6 @@ for s3_problem in s3p_list:
         utility = s3_vector.expectation_value(observable.data)
         utility *= s3/sb
         classical_utilities.append(utility)
-
-        offset = 0 #17*np.pi/48
 
         # Upper bound
         s12_vector = QuantumAmbiguity(s1=s1_vector, s2=s2_vector, alpha=a, delta=0+offset)
@@ -154,18 +156,24 @@ for s3_problem in s3p_list:
 
 #for delta, list in quantum_utilities.items():
     #plt.plot(probs, list,'--', label = delta)
-plt.plot(probs, cu_list[0], color='blue')
-plt.plot(probs, ub_list[0], color = 'blue', linestyle='--')
-plt.plot(probs, lb_list[0], color = 'blue', linestyle='--')
+# plt.plot(probs, cu_list[0], color='blue')
+# plt.plot(probs, ub_list[0], color = 'blue', linestyle='--')
+# plt.plot(probs, lb_list[0], color = 'blue', linestyle='--')
+#plt.text(probs[-1], cu_list[0][-1], r'$ \ \ Constant \ Volatility$', va='center', ha='left', color='black')
 
-#plt.plot(probs, cu_list[1], label=f'sv \gamma_g = {gamma_G_1}')
-#plt.plot(probs, cu_list[2], label=f'sv \gamma_g = {gamma_G_2}')
+plt.plot(probs, cu_list[1], color = 'blue', label=f'sv \gamma_g = {gamma_G_1}')
+plt.plot(probs, ub_list[1], color = 'blue', linestyle='--')
+plt.plot(probs, lb_list[1], color = 'blue', linestyle='--')
+plt.text(probs[-1], cu_list[1][-1], fr'$ \ \ \pi_G = {pi_G_1}, \ \gamma_G = {gamma_G_1}$', va='center', ha='left', color='black')
+
+#plt.plot(probs, cu_list[2], color = 'red', label=f'sv \gamma_g = {gamma_G_2}')
+# plt.plot(probs, ub_list[2], color = 'red', linestyle='--')
+# plt.plot(probs, lb_list[2], color = 'red', linestyle='--')
+# plt.text(probs[-1], cu_list[2][-1], fr'$ \ \ \pi_G = {pi_G_2}, \ \gamma_G = {gamma_G_2}$', va='center', ha='left', color='black')
+
 plt.plot(probs, cu_list[3], label='rd', color='red')
 plt.plot(probs, ub_list[3], color = 'red', linestyle='--')
 plt.plot(probs, lb_list[3], color = 'red', linestyle='--')
-plt.text(probs[-1], cu_list[0][-1], r'$ \ \ Constant \ Volatility$', va='center', ha='left', color='black')
-# plt.text(probs[-1], cu_list[1][-1], r'$ \ \ \pi_G = 0.8, \ \gamma_G = 0.3$', va='center', ha='left', color='black')
-# plt.text(probs[-1], cu_list[2][-1], r'$ \ \ \pi_G = 0.95, \ \gamma_G = 0.01$', va='center', ha='left', color='black')
 plt.text(probs[-1], cu_list[3][-1], r'$ \ \ Rare \ Disasters$', va='center', ha='left', color='black')
 
 
@@ -182,7 +190,7 @@ i0_prob, i0_value = probs[i0], lb_list[0][i0]
 
 print(i0_prob, i0_value)
 
-plt.vlines(i0_prob, ymin=0, ymax = i0_value, linestyle='--', colors='black')
+#plt.vlines(i0_prob, ymin=0, ymax = i0_value, linestyle='--', colors='black')
 # plt.text(i0_prob, -1.1, f'p', ha='center', va='top')
 
 # plt.vlines(i1_prob, ymin=0, ymax = i1_value, linestyle='--', colors='blue')
